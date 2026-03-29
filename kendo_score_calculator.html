@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>剑道比赛积分计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .checkbox-label {
+            font-weight: normal;
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #0d47a1;
+        }
+        
+        .score-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .score-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .score-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .score-breakdown {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: left;
+            font-size: 13px;
+        }
+        
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 3px 0;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .rules-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .rules-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .rules-link a:hover {
+            text-decoration: underline;
+        }
+        
+        #rules {
+            display: none;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        
+        #rules h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        #rules ul {
+            margin-left: 20px;
+        }
+        
+        #rules li {
+            margin: 5px 0;
+            color: #555;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>剑道比赛积分计算器</h1>
+        <p class="subtitle">CKOU® 官方积分计算工具</p>
+        
+        <div class="info-box">
+            💡 根据参赛信息自动计算积分，支持额外奖励分计算
+        </div>
+        
+        <form id="calculatorForm">
+            <div class="form-group">
+                <label for="rank">比赛名次</label>
+                <select id="rank" required>
+                    <option value="">请选择名次</option>
+                    <option value="100">第一名（冠军）</option>
+                    <option value="70">第二名（亚军）</option>
+                    <option value="40">第三名（四强）</option>
+                    <option value="30">第五名（八强）</option>
+                    <option value="20">第七名（十六强）</option>
+                    <option value="0">未获得名次</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="wins">获胜场次</label>
+                <input type="number" id="wins" min="0" max="50" value="0" placeholder="请输入获胜场次">
+            </div>
+            
+            <div class="form-group">
+                <label for="multiplier">计分倍数（赛事级别）</label>
+                <select id="multiplier" required>
+                    <option value="">请选择赛事级别</option>
+                    <option value="12">CKOU®剑道大赛 (AAAA级) - 12倍</option>
+                    <option value="6">全国公开赛事及符合标准的海外赛事 (AAA级) - 6倍</option>
+                    <option value="3">未达到AAA级的海外赛事 (AA级) - 3倍</option>
+                    <option value="1">全国预选选手合训赛 (A级) - 1倍</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>额外奖励分</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="bonus200">
+                    <label for="bonus200" class="checkbox-label">非"风云剑士"在AA级及以上赛事中击败"风云剑士" (+200分)</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>参赛经验分</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="experience" checked>
+                    <label for="experience" class="checkbox-label">已参赛并完成比赛 (+5分)</label>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn">计算积分</button>
+        </form>
+        
+        <div class="score-display" id="result" style="display: none;">
+            <div class="score-label">总积分</div>
+            <div class="score-value" id="totalScore">0</div>
+            <div class="score-breakdown" id="breakdown"></div>
+        </div>
+        
+        <div class="rules-link">
+            <a href="#" id="toggleRules">📋 查看积分规则详情</a>
+        </div>
+        
+        <div id="rules">
+            <h3>积分获得标准</h3>
+            <ul>
+                <li>第一名（冠军）：<span class="highlight">100分</span></li>
+                <li>第二名（亚军）：<span class="highlight">70分</span></li>
+                <li>第三名（四强）：<span class="highlight">40分</span></li>
+                <li>第五名（八强）：<span class="highlight">30分</span></li>
+                <li>第七名（十六强）：<span class="highlight">20分</span></li>
+                <li>获胜场次：<span class="highlight">10分/场</span></li>
+                <li>参赛经验：<span class="highlight">5分</span></li>
+            </ul>
+            
+            <h3 style="margin-top: 15px;">计算公式</h3>
+            <p style="background: white; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                （参赛经验分 + 获胜场次分 + 取得名次分）X 计分倍数 = 总得分
+            </p>
+            
+            <h3 style="margin-top: 15px;">特别说明</h3>
+            <ul>
+                <li>非"风云剑士"在AA级及以上赛事击败"风云剑士"：<span class="highlight">+200分</span></li>
+                <li>积分赛事组别参加人数需在16人以上</li>
+                <li>其他荣誉（敢斗奖、优秀选手奖等）不计入积分</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('calculatorForm');
+        const result = document.getElementById('result');
+        const totalScoreEl = document.getElementById('totalScore');
+        const breakdownEl = document.getElementById('breakdown');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculateScore();
+        });
+        
+        // 实时计算
+        const inputs = form.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('change', calculateScore);
+            input.addEventListener('input', calculateScore);
+        });
+        
+        function calculateScore() {
+            // 获取输入值
+            const rankScore = parseInt(document.getElementById('rank').value) || 0;
+            const wins = parseInt(document.getElementById('wins').value) || 0;
+            const multiplier = parseFloat(document.getElementById('multiplier').value) || 1;
+            const bonus200 = document.getElementById('bonus200').checked ? 200 : 0;
+            const experience = document.getElementById('experience').checked ? 5 : 0;
+            
+            // 计算各项分数
+            const winsScore = wins * 10;
+            const baseScore = experience + winsScore + rankScore;
+            const totalScore = Math.round((baseScore * multiplier) + bonus200);
+            
+            // 显示结果
+            result.style.display = 'block';
+            totalScoreEl.textContent = totalScore;
+            
+            // 显示明细
+            let breakdownHTML = '<div style="font-weight: 600; margin-bottom: 10px;">积分明细：</div>';
+            breakdownHTML += `<div class="breakdown-item"><span>参赛经验分</span><span>${experience} 分</span></div>`;
+            breakdownHTML += `<div class="breakdown-item"><span>获胜场次分</span><span>${wins} 场 × 10 = ${winsScore} 分</span></div>`;
+            breakdownHTML += `<div class="breakdown-item"><span>取得名次分</span><span>${rankScore} 分</span></div>`;
+            breakdownHTML += `<div class="breakdown-item" style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 5px; margin-top: 5px;"><span>基础分数合计</span><span>${baseScore} 分</span></div>`;
+            breakdownHTML += `<div class="breakdown-item"><span>计分倍数</span><span>× ${multiplier}</span></div>`;
+            if (bonus200 > 0) {
+                breakdownHTML += `<div class="breakdown-item" style="color: #ffd700;"><span>额外奖励分</span><span>+${bonus200} 分</span></div>`;
+            }
+            breakdownHTML += `<div class="breakdown-item" style="font-weight: 600; font-size: 15px; border-top: 2px solid rgba(255,255,255,0.3); padding-top: 5px; margin-top: 5px;"><span>总积分</span><span>${totalScore} 分</span></div>`;
+            
+            breakdownEl.innerHTML = breakdownHTML;
+        }
+        
+        // 切换规则显示
+        document.getElementById('toggleRules').addEventListener('click', function(e) {
+            e.preventDefault();
+            const rules = document.getElementById('rules');
+            if (rules.style.display === 'none') {
+                rules.style.display = 'block';
+                this.textContent = '📋 隐藏积分规则详情';
+            } else {
+                rules.style.display = 'none';
+                this.textContent = '📋 查看积分规则详情';
+            }
+        });
+    </script>
+</body>
+</html>
